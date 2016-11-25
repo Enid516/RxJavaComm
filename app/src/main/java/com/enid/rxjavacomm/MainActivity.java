@@ -7,6 +7,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
+/**
+ * RxJava RxAndroid RxBinding RxBus
+ */
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
     private TabLayout tabLayout;

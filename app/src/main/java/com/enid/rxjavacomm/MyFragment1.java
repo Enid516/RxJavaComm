@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.enid.rxjavacomm.comm.ProgressSubscriber;
 import com.enid.rxjavacomm.model.AddressInfoModel;
 import com.enid.rxjavacomm.model.AddressModel;
 import com.enid.rxjavacomm.network.ResponseHelper;
@@ -53,8 +52,8 @@ public class MyFragment1 extends Fragment {
     private void click(){
         unsubscribe();
         ResponseHelper.search(subscription,subscriber,"a");//常规
-//        ResponseHelper.searchChange(subscription,observer);//map
-//        ResponseHelper.testFlatMap(subscription,observer);
+        ResponseHelper.searchChange(subscription,observer);//map
+        ResponseHelper.testFlatMap(subscription,observer);
         ResponseHelper.testZip(subscription);
     }
 
@@ -62,6 +61,7 @@ public class MyFragment1 extends Fragment {
         if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
         }
+        subscriber.unsubscribe();
     }
 
     Observer<AddressInfoModel> observer = new Observer<AddressInfoModel>() {

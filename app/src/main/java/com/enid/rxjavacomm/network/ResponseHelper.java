@@ -7,12 +7,18 @@ import com.enid.rxjavacomm.util.AddressModel2AddressInfoModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import rx.Observable;
 import rx.Observer;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.functions.Action1;
+import rx.functions.Action2;
+import rx.functions.Action3;
+import rx.functions.ActionN;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.schedulers.Schedulers;
@@ -39,7 +45,7 @@ public class ResponseHelper {
     }
 
     /**
-     * map函数，参数为一个Func1<I,O>,在cll方法中返回O类型，用于将I类型，转换成O类型
+     * map函数，参数为一个Func1<I,O>,在call方法中返回O类型，用于将I类型，转换成O类型
      */
     public static void testMap(Subscription subscription) {
         subscription = Observable.from(new String[]{"hello", "this", "is", "a", "tip"})
@@ -58,8 +64,9 @@ public class ResponseHelper {
                 });
     }
 
+
     /**
-     * flatMap 参数为一个Func1<I,O>,在cll方法中返回O类型，用于将I类型，转换成O类型,不过O类型为Observable类型
+     * flatMap 参数为一个Func1<I,O>,在call方法中返回O类型，用于将I类型，转换成O类型,不过O类型为Observable类型
      * 可以在flatMap下面的call方法中根I的内容 继续请求数据返回一个Observable<C>处理
      */
     public static void testFlatMap(Subscription subscription, Observer<AddressInfoModel> observer) {
@@ -112,6 +119,135 @@ public class ResponseHelper {
     }
 
     public static void testCache(Subscription subscription) {
-//        subscription = Data
+        Observable.just("Hello")
+                .map(new Func1<String, String>() {
+                    @Override
+                    public String call(String s) {
+                        return s + "i am enid ho";
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<String>() {
+                    @Override
+                    public void call(String s) {
+                        System.out.println(s);
+                    }
+                });
+
+        String[] arr = new String[]{"A", "B", "C", "D", "E", "F"};
+        Observable observableFrom = Observable.from(arr);
+        observableFrom.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(new Func1<String, Boolean>() {
+                    @Override
+                    public Boolean call(String s) {
+                        return s.toCharArray()[0] > 63 ? true : false;
+                    }
+                })
+                .take(4)
+                .doOnNext(new Action1() {
+                    @Override
+                    public void call(Object o) {
+                        //doSomeThing();example save data to sd card
+                    }
+                });
+
+
+        //可以简写成上面的Observable.just("Hello")
+        Observable<String> observable = Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                subscriber.onNext("Hello");
+                subscriber.onCompleted();
+            }
+        });
+
+
+        Observer<String> observer = new Observer<String>() {
+            @Override
+            public void onCompleted() {
+                System.out.println("onCompleted");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                System.out.println("onError" + e.getMessage());
+            }
+
+            @Override
+            public void onNext(String s) {
+                System.out.println("onNext" + s);
+            }
+        };
+
+        //不完整定义的回调
+        Action0 completedAction = new Action0() {
+            @Override
+            public void call() {
+                System.out.println("onComplete");
+            }
+        };
+        Action1<String> successAction1 = new Action1<String>() {
+            @Override
+            public void call(String s) {
+                System.out.println("onSuccess1" + s);
+            }
+        };
+        Action2<String, String> successAction2 = new Action2<String, String>() {
+            @Override
+            public void call(String s, String s2) {
+                System.out.println("onSuccess2" + s + "-" + s2);
+            }
+        };
+        Action3<String, List<String>, Map<String, String>> action3 = new Action3<String, List<String>, Map<String, String>>() {
+            @Override
+            public void call(String s, List<String> strings, Map<String, String> stringStringMap) {
+
+            }
+        };
+        ActionN actionN = new ActionN() {
+            @Override
+            public void call(Object... args) {
+
+            }
+        };
+
+        observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+
+        observableFrom.map(new Func1<String, String>() {
+            @Override
+            public String call(String s) {
+                return null;
+            }
+        });
+        Observable observable2Arguments = Observable.create(new Observable.OnSubscribe<String>() {
+
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                subscriber.onNext("message1");
+            }
+        });
+        observable.map(new Func1<String, String>() {
+            @Override
+            public String call(String s) {
+                return s;
+            }
+        })
+        .flatMap(new Func1<String, Observable<?>>() {
+            @Override
+            public Observable<?> call(String s) {
+                return null;
+            }
+        });
+//        observable.map(new Func2<String,String,String>(){
+//            @Override
+//            public String call(String s, String s2) {
+//                return null;
+//            }
+//        });
+
     }
 }
